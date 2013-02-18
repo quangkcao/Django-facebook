@@ -204,10 +204,14 @@ def _register_user(request, facebook, profile_callback=None,
     if request.REQUEST.get('force_registration_hard'):
         data['email'] = data['email'].replace(
             '@', '+test%s@' % randint(0, 1000000000))
-
-    form = form_class(data=data, files=request.FILES,
-                      initial={'ip': request.META['REMOTE_ADDR']})
-
+    #checking for storing local image
+    if facebook_settings.FACEBOOK_STORE_LOCAL_IMAGE:
+        form = form_class(data=data, files=request.FILES,
+                          initial={'ip': request.META['REMOTE_ADDR']})
+    else:
+        form = form_class(data=data,
+                            initial={'ip': request.META['REMOTE_ADDR']})
+        
     if not form.is_valid():
         error_message_format = u'Facebook data %s gave error %s'
         error_message = error_message_format % (facebook_data, form.errors)
